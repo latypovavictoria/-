@@ -18,7 +18,7 @@ struct books {
 };
 book1 books[1000];
 typedef struct students students1;
-struct students {
+ struct students {
 	char booknum[20];
 	char surname[30];
 	char name[30];
@@ -35,11 +35,14 @@ void bookf(FILE *book);
 int readb(const char* file);
 int readb1(const char* file);
 int similar(char num[20]);
-void delbook(const char* file);
+void delbook1(const char* filename);
 int similar1(char num[20]);
 int similar2(char booknum[15]);
-void delstudents(const char* file);
+int similar3(char booknum[15]);
 void studentsf(FILE* stdents);
+void delstudent(const char* filename);
+int readb3(const char* file);
+int readb4(const char* file);
 int similarst(char surname[40])
 {
 	int i;
@@ -49,45 +52,83 @@ int similarst(char surname[40])
 			temp = i;
 	return temp;
 }
-void searchst(const char* filename) {
-	setlocale(LC_ALL, "Russian");
-	SetConsoleCP(1251);
-	SetConsoleOutputCP(1251);
-	FILE* stdents;
-	char surname[40];
+void searchst1(const char* filename) {
+	char surname[60];
+	int i = 0;
 	char file[5000];
-	printf("Введите фамилию студента:");
+	FILE* stdents;
+	printf("Введите фамилию:");
 	scanf("%s", surname);
+	fflush(stdin);
 	stdents = fopen(filename, "r+");
-	rewind(stdents);
-	int getfile = similarst(surname);
-//if (getfile == 0)
-	//{
-	printf("%s;%s;%s;%s;%s;%s\n", students[getfile].booknum, students[getfile].surname, students[getfile].name, students[getfile].patr, students[getfile].fac, students[getfile].depart);
-		fclose(stdents);
-	//}
-//else
-//{
-	//printf("Нет студента с такой фамилией");
-//fclose(stdents);
-	//}
-}
-void back(int *line,students1 *students) {
-	FILE* stdents;
-	char file[5000];
-	time_t timer;
-	struct tm* timed;
-	time(&timer);
-	timed = localtime(&timer);
-	strftime(file, 5000, "students %d.%m.%y %Hч:%Mм:%Sс.csv", timed);
-	stdents = fopen(file, "w");
-	for (int i = 0; i < *line && students[i].booknum>0; i++) {
-		if (*line - i - 1 && students[i + 1].booknum > 0)
-			fprintf(stdents, "%s;%s;%s;%s;%s;%s\n", students[i].booknum, students[i].surname, students[i].name, students[i].patr, students[i].fac, students[i].depart);
-		else fprintf(stdents, "%s;%s;%s;%s;%s;%s", students[i].booknum, students[i].surname, students[i].name, students[i].patr, students[i].fac, students[i].depart);
+	{rewind(stdents);
+	while (fgets(file, 5000, stdents))
+	{
+		fscanf(stdents, "%[^;];%[^;];%[^;];%[^;];%[^;];[^;];[^;]", students[i].booknum, students[i].surname, students[i].name, students[i].patr, students[i].fac, students[i].depart);
+		i++;
+	}
+	int n = 0;
+	int k[61];
+	int j = 0;
+	for (; j <= i; j++)
+	{
+		if (strcmp(surname, students[j].surname) == 0)
+			k[j] = j;
+		else
+			k[j] = -1;
 	}
 	fclose(stdents);
-	printf("OK");
+	for (j = 0; j <= i; j++) {
+		if (k[j] != -1)
+		{
+			printf("%s;%s;%s;%s;%s;%s\n", students[j].booknum, students[j].surname, students[j].name, students[j].patr, students[j].fac, students[j].depart);
+			n = 1;
+		}
+	}
+	if (n == 0)
+	{
+		printf("Нет студентов с такой фамилией!\n");
+	}
+	}
+}
+void searchb(const char* filename) {
+	char num[20];
+	int i = 0;
+	char file[5000];
+	FILE* stubooks;
+	printf("Введите ISBN:");
+	scanf("%s", num);
+	fflush(stdin);
+	stubooks = fopen(filename, "r+");
+	{rewind(stubooks);
+	while (fgets(file, 5000, stubooks))
+	{
+		fscanf(stubooks, "%[^;];%[^;];%[^;]", books[i].num, students[i].booknum, stdbooks[i].time);
+		i++;
+	}
+	int n = 0;
+	int k[21];
+	int j = 0;
+	for (; j <= i; j++)
+	{
+		if (strcmp(num, books[j].num) == 0)
+			k[j] = j;
+		else
+			k[j] = -1;
+	}
+	fclose(stubooks);
+	for (j = 0; j <= i; j++) {
+		if (k[j] != -1)
+		{
+			printf("%s;%s;%s\n", books[j].num, students[j].booknum, stdbooks[j].time);
+			n = 1;
+		}
+	}
+	if (n == 0)
+	{
+		printf("Нет книг с таким ISBN!\n");
+	}
+	}
 }
 char state;
 char status;
@@ -101,7 +142,8 @@ char* writestr(char str[]) {
 	int c, i = 0;
 	while ((c = getchar()) != EOF && c != '\n') {
 		str[i++] = c;
-	}str[i] = '\0';
+	}
+	str[i] = '\0';
 	return str;
 }
 
@@ -110,8 +152,8 @@ int Mainbook() {
 	printf("(1) Добавить новую книгу\n");
 	printf("(2) Удалить книгу\n");
 	printf("(3) Редактировать информацию по книге\n");
-	printf("(4) Просмотреть информацию студентов по номеру ISBN\n");
-	printf("(5) Выдача/сдача книг\n");
+	printf("(4) Выдача/сдача книг\n");
+	printf("(5) Просмотреть информацию по книгам\n");
 	printf("(0) Выйти\n");
 	FILE* book;
 	book = fopen("books.csv", "r");
@@ -125,16 +167,16 @@ int Mainstudents() {
 	printf("(1) Добавить нового студента\n");
 	printf("(2) Удалить студента\n");
 	printf("(3) Редактировать информацию по студенту\n");
-	printf("(4) Поиск студента\n");
+	printf("(4) Поиск студентов\n");
 	printf("(5) Выдача книг/сдача\n");
-	printf("(6) Бэкап\n");
+	printf("(6) Сохранение файла\n");
+	printf("(7) Восстановление данных\n");
 	printf("(0) Выйти\n");
 	FILE* stdents;
-	stdents = fopen("students.csv", "r");
-	studentsf(stdents);
-	fclose(stdents);
-	return 2;
-
+		stdents = fopen("students.csv", "r");
+		studentsf(stdents);
+		fclose(stdents);
+		return 2;
 }
 int readb(const char* file) {
 	FILE* book = fopen(file, "r+");
@@ -167,9 +209,19 @@ int similar(char num[20])
 {
 	int i;
 	int temp = -1;
-	for (i = 0; i < readb("books.csv"); i++)
+	for (i = 0; i < readb("books.csv"); ++i)
 		if (strcmp(num, books[i].num) == 0)
 			temp = i;
+	return temp;
+}
+int similar1(char num[20])
+{
+	int i, j;
+	int temp = -1;
+	for (i = 0; i < readb4("student_books.csv"); i++)
+		if (strcmp(num, books[i].num) == 0)
+			temp = i;
+	temp = i;
 	return temp;
 }
 int similar2(char booknum[15])
@@ -180,6 +232,41 @@ int similar2(char booknum[15])
 		if (strcmp(booknum, students[i].booknum) == 0)
 			temp = i;
 	return temp;
+}
+int similar3(char booknum[15])
+{
+	int i, j;
+	int temp = -1;
+	for (i = 0; i < readb3("student_books.csv"); i++)
+		if (strcmp(booknum, students[i].booknum) == 0)
+			temp = i;
+	return temp;
+}
+int readb3(const char* file) {
+	FILE* stubooks = fopen(file, "r+");
+	if (!stubooks)
+		return -1;
+	rewind(stubooks);
+	char str[1000];
+	int i = 0;
+	while (fgets(str, 1000, stubooks)) {
+		fscanf(stubooks, "%[^;];%[^;];%[^;]", books[i].num, students[i].booknum, stdbooks[i].time);
+		i++;
+	}
+	return i;
+}
+int readb4(const char* file) {
+	FILE* stubooks = fopen(file, "r+");
+	if (!stubooks)
+		return -1;
+	rewind(stubooks);
+	char str[1000];
+	int i = 0;
+	while (fgets(str, 1000, stubooks)) {
+		fscanf(stubooks, "%[^;];%[^;];%[^;]", books[i].num, students[i].booknum, stdbooks[i].time);
+		i++;
+	}
+	return i;
 }
 void bookf(FILE* book) {
 	setlocale(LC_ALL, "Russian");
@@ -201,7 +288,7 @@ void bookf(FILE* book) {
 		printf("Введите ISBN:");
 		fflush(stdin);
 		scanf("%s", elem.num);
-		if (similar(elem.num) != -1)
+		if (similar(elem.num) == 0)
 		{
 			printf("Такой ISBN уже есть!\n");
 			fclose(book);
@@ -226,19 +313,15 @@ void bookf(FILE* book) {
 		}
 	}
 	if (add == 2) {
-		FILE* stubooks;
-		stubooks = fopen("student_books.csv", "r");
-		char str[5000];
-		while (fgets(str, 5000, stubooks) != NULL) 
-			printf("%s", str);
-			printf("Введите ISBN:");
-			scanf("%s", elem.num);
-			int l = similar1(elem.num);
-			if (l != 1) {
-				printf("Эта книга занята, удалить невозможно!\n");
-			}
-			else
-		delbook("books.csv");
+		FILE* stubooks = fopen("student_books.csv", "r");
+		char dnum[20];
+		printf("Введите ISBN:");
+		scanf("%s", &dnum);
+		if (similar1(dnum) == 0) {
+			printf("Эта книга занята!");
+		}
+		else delbook1("books.csv");
+		fclose(stubooks);
 	}
 	if (add == 3) {
 		printf("\nВведите ISBN:");
@@ -272,9 +355,6 @@ void bookf(FILE* book) {
 			printf("\nНет такого ISBN!\n ");
 	}
 	if (add == 4) {
-		
-	}
-	if (add == 5) {
 		struct students elem1;
 		struct stbooks elem2;
 		FILE* book, * studbook, * stdents;
@@ -292,7 +372,7 @@ void bookf(FILE* book) {
 		int getfile12 = readb1("students.csv");
 		fclose(book);
 		fclose(stdents);
-		if (getfile != 1 && getfile2 != 1)
+		if (getfile !=-1 && getfile2 != -1)
 		{
 			printf("Введите автора:");
 			scanf("%s", elem.ath);
@@ -302,8 +382,6 @@ void bookf(FILE* book) {
 			scanf("%d", &elem.q);
 			printf("Количество доступных книг:");
 			scanf("%d", &elem.qs);
-			printf("Введите дату сдачи:");
-			scanf("%s", elem2.time);
 			book = fopen("books.csv", "w");
 			stdents = fopen("students.csv", "r");
 			studbook = fopen("student_books.csv", "a+");
@@ -311,8 +389,8 @@ void bookf(FILE* book) {
 			for (i = 0; i < getfile1; i++)
 			{
 				for (j = 0; j < getfile12; j++)
-					if (i != getfile && j!=getfile2)
-					fprintf(book, "%s;%s;%s;%d;%d\n", books[i].num, books[i].ath, books[i].name, books[i].q, books[i].qs);
+					if (i != getfile && j != getfile2)
+						fprintf(book, "%s;%s;%s;%d;%d\n", books[i].num, books[i].ath, books[i].name, books[i].q, books[i].qs);
 				fprintf(studbook, "%s;%s;%s\n", books[i].num, students[j].booknum, elem2.time);
 			}
 			int n;
@@ -327,6 +405,8 @@ void bookf(FILE* book) {
 			}
 			else if (n == 1) {
 				if (elem.qs > 1) {
+					printf("Введите дату сдачи:");
+					scanf("%s", elem2.time);
 					fprintf(book, "%s;%s;%s;%d;%d\n", elem.num, elem.ath, elem.name, elem.q, elem.qs - 1);
 					fprintf(studbook, "%s;%s;%s\n", elem.num, elem1.booknum, elem2.time);
 				}
@@ -336,9 +416,13 @@ void bookf(FILE* book) {
 				}
 				fclose(book);
 			}
+		
 			else
 				printf("\nНет таких ISBN или зачетки!\n ");
 		}
+	}
+	if (add == 5) {
+		searchb("student_books.csv");
 	}
 	if (add == 0) {
 		exit(0);
@@ -356,156 +440,190 @@ void studentsf(FILE* stdents) {
 		printf("\n%s\n", file);
 	}
 	fclose(stdents);
-	printf("\nВыберете операцию:");
 	int add;
-	scanf("%d", &add);
-	if (add == 1) {
-		printf("\nВведите номер зачетки:");
-		scanf("%s", elem.booknum);
-		if (similar2(elem.booknum)!=-1)
-		{
-			printf("Такая зачетка уже есть!\n");
-			fclose(stdents);
-		}
-		else {
-			printf("Введите фамилию:");
-			scanf("%s", elem.surname);
-			printf("Введите имя:");
-			scanf("%s", elem.name);
-			printf("Введите отчество:");
-			scanf("%s", elem.patr);
-			printf("Введите факультет:");
-			scanf("%s", elem.fac);
-			printf("Введите кафедру:");
-			scanf("%s", elem.depart);
-			stdents = fopen("students.csv", "a+");
-			fprintf(stdents, "%s;%s;%s;%s;%s;%s\n", elem.booknum, elem.surname, elem.name, elem.patr, elem.fac, elem.depart);
-		}
-	}
-	if (add == 2) {
-		stubooks = fopen("student_books.csv", "r");
-		char str[5000];
-		while (fgets(str, 5000, stubooks) != NULL)
-			printf("%s", str);
-		printf("Введите номер зачетки:");
-		scanf("%s", elem.booknum);
-		int l = similar1(elem.booknum);
-		if (l == 0) {
-			printf("У этого студента остались книги, удалить невозможно!\n");
-		}
-		else
-			delstudents("students.csv");
-	}
-	if (add == 3) {
-		printf("\nВведите номер зачетки:");
-		scanf("%s", elem.booknum);
-		stdents = fopen("students.csv", "r");
-		rewind(stdents);
-		int getfile = similar2(elem.booknum);
-		int getfile1 = readb1("students.csv");
-		fclose(stdents);
-		if (getfile != -1)
-		{
-			printf("Введите фамилию:");
-			scanf("%s", elem.surname);
-			printf("Введите имя:");
-			scanf("%s", elem.name);
-			printf("Введите отчество:");
-			scanf("%s", &elem.patr);
-			printf("Введите факультет:");
-			scanf("%s", &elem.fac);
-			printf("Введите кафедру:");
-			scanf("%s", elem.depart);
-			stdents = fopen("students.csv", "w");
-			int i;
-			for (i = 0; i < getfile1; i++)
-			{
-				if (i != getfile)
-					fprintf(stdents, "%s;%s;%s;%s;%s;%s\n", students[i].booknum, students[i].surname, students[i].name, students[i].patr, students[i].fac, students[i].depart);
-				fprintf(stdents, "%s;%s;%s;%s;%s;%s\n", elem.booknum, elem.surname, elem.name, elem.patr, elem.fac, elem.depart);
-			}
-			fclose(stdents);
-		}
-		else
-			printf("\nНет такой зачетки!\n ");
-	}
-	if (add == 4) {
-		searchst("students.csv");
-	}
-	if (add == 5) {
-		struct books elem1;
-		struct stbooks elem2;
-		FILE* book, * studbook;
-		printf("\nВведите ISBN:");
-		scanf("%s", elem1.num);
-		printf("Введите номер зачетки:");
-		scanf("%s", elem.booknum);
-		book = fopen("books.csv", "r");
-		stdents = fopen("students.csv", "r");
-		rewind(book);
-		rewind(stdents);
-		int getfile = similar(elem1.num);
-		int getfile2 = similar2(elem.booknum);
-		int getfile1 = readb("books.csv");
-		int getfile12 = readb1("students.csv");
-		fclose(book);
-		fclose(stdents);
-		if (getfile != 1 && getfile2 != 1)
-		{
-			printf("Введите автора:");
-			scanf("%s", elem1.ath);
-			printf("Введите название:");
-			scanf("%s", elem1.name);
-			printf("Количество книг:");
-			scanf("%d", &elem1.q);
-			printf("Количество доступных книг:");
-			scanf("%d", &elem1.qs);
-			printf("Введите дату сдачи:");
-			scanf("%s", elem2.time);
-			book = fopen("books.csv", "w");
-			stdents = fopen("students.csv", "r");
-			studbook = fopen("student_books.csv", "a+");
-			int i, j;
-			for (i = 0; i < getfile1; i++)
-			{
-				for (j = 0; j < getfile12; j++)
-					if (i != getfile && j != getfile2)
-						fprintf(book, "%s;%s;%s;%d;%d\n", books[i].num, books[i].ath, books[i].name, books[i].q, books[i].qs);
-				fprintf(studbook, "%s;%s;%s\n", books[i].num, students[j].booknum, elem2.time);
-			}
-			int n;
-			printf("1-выдать; 2-забрать:");
-			scanf("%d", &n);
-			if (n == 2) {
-				if (elem1.qs < elem1.q) {
-					fprintf(book, "%s;%s;%s;%d;%d\n", elem1.num, elem1.ath, elem1.name, elem1.q, elem1.qs + 1);
-					fprintf(studbook, "%s;%s;%s\n", books[i].num, students[j].booknum, elem2.time);
-				}
-				else printf("Нечего забирать!");
-			}
-			else if (n == 1) {
-				if (elem1.qs > 1) {
-					fprintf(book, "%s;%s;%s;%d;%d\n", elem1.num, elem1.ath, elem1.name, elem1.q, elem1.qs - 1);
-					fprintf(studbook, "%s;%s;%s\n", elem1.num, elem.booknum, elem2.time);
+		printf("\nВыберете операцию:");
+		scanf("%d", &add);
+			if (add == 1) {
+				printf("\nВведите номер зачетки:");
+				scanf("%s", elem.booknum);
+				if (similar2(elem.booknum) != -1)
+				{
+					printf("Такая зачетка уже есть!\n");
+					fclose(stdents);
 				}
 				else {
-					printf("Недостаточно книг\n");
-					printf("Книга будет сдана: %s", elem2.time);
+					printf("Введите фамилию:");
+					scanf("%s", elem.surname);
+					printf("Введите имя:");
+					scanf("%s", elem.name);
+					printf("Введите отчество:");
+					scanf("%s", elem.patr);
+					printf("Введите факультет:");
+					scanf("%s", elem.fac);
+					printf("Введите кафедру:");
+					scanf("%s", elem.depart);
+					stdents = fopen("students.csv", "a+");
+					fprintf(stdents, "%s;%s;%s;%s;%s;%s\n", elem.booknum, elem.surname, elem.name, elem.patr, elem.fac, elem.depart);
 				}
-				fclose(book);
 			}
-			else
-				printf("\nНет таких ISBN или зачетки!\n ");
+			if (add == 2) {
+				FILE* stubooks=fopen("student_books.csv","r");
+				char dbooknum[15];
+				printf("Введите номер зачетки:");
+				scanf("%s", dbooknum);
+				if (similar3(dbooknum)!= -1) {
+					printf("У этого студента еще остались книги!");
+				}
+				else delstudent("students.csv");
+				fclose(stubooks);
+			}
+			if (add == 3) {
+				printf("\nВведите номер зачетки:");
+				scanf("%s", elem.booknum);
+				stdents = fopen("students.csv", "r");
+				rewind(stdents);
+				int getfile = similar2(elem.booknum);
+				int getfile1 = readb1("students.csv");
+				fclose(stdents);
+				if (getfile != -1)
+				{
+					printf("Введите фамилию:");
+					scanf("%s", elem.surname);
+					printf("Введите имя:");
+					scanf("%s", elem.name);
+					printf("Введите отчество:");
+					scanf("%s", &elem.patr);
+					printf("Введите факультет:");
+					scanf("%s", &elem.fac);
+					printf("Введите кафедру:");
+					scanf("%s", elem.depart);
+					stdents = fopen("students.csv", "w");
+					int i;
+					for (i = 0; i < getfile1; i++)
+					{
+						if (i != getfile)
+							fprintf(stdents, "%s;%s;%s;%s;%s;%s\n", students[i].booknum, students[i].surname, students[i].name, students[i].patr, students[i].fac, students[i].depart);
+						fprintf(stdents, "%s;%s;%s;%s;%s;%s\n", elem.booknum, elem.surname, elem.name, elem.patr, elem.fac, elem.depart);
+					}
+					fclose(stdents);
+				}
+				else
+					printf("\nНет такой зачетки!\n ");
+			}
+			if (add == 4) {
+				searchst1("students.csv");
+			}
+			if (add == 5) {
+				struct books elem1;
+				struct stbooks elem2;
+				FILE* book, * studbook;
+				printf("\nВведите ISBN:");
+				scanf("%s", elem1.num);
+				printf("Введите номер зачетки:");
+				scanf("%s", elem.booknum);
+				book = fopen("books.csv", "r");
+				stdents = fopen("students.csv", "r");
+				rewind(book);
+				rewind(stdents);
+				int getfile = similar(elem1.num);
+				int getfile2 = similar2(elem.booknum);
+				int getfile1 = readb("books.csv");
+				int getfile12 = readb1("students.csv");
+				fclose(book);
+				fclose(stdents);
+				if (getfile != -1 && getfile2 != -1)
+				{
+					printf("Введите автора:");
+					scanf("%s", elem1.ath);
+					printf("Введите название:");
+					scanf("%s", elem1.name);
+					printf("Количество книг:");
+					scanf("%d", &elem1.q);
+					printf("Количество доступных книг:");
+					scanf("%d", &elem1.qs);
+					book = fopen("books.csv", "w");
+					stdents = fopen("students.csv", "r");
+					studbook = fopen("student_books.csv", "a+");
+					int i, j;
+					for (i = 0; i < getfile1; i++)
+					{
+						for (j = 0; j < getfile12; j++)
+							if (i != getfile && j != getfile2)
+								fprintf(book, "%s;%s;%s;%d;%d\n", books[i].num, books[i].ath, books[i].name, books[i].q, books[i].qs);
+						fprintf(studbook, "%s;%s;%s\n", books[i].num, students[j].booknum, elem2.time);
+					}
+					int n;
+					printf("1-выдать; 2-забрать:");
+					scanf("%d", &n);
+					if (n == 2) {
+						if (elem1.qs < elem1.q) {
+							fprintf(book, "%s;%s;%s;%d;%d\n", elem1.num, elem1.ath, elem1.name, elem1.q, elem1.qs + 1);
+							fprintf(studbook, "%s;%s;%s\n", books[i].num, students[j].booknum, elem2.time);
+						}
+						else printf("Нечего забирать!");
+					}
+					else if (n == 1) {
+						printf("Введите дату сдачи:");
+						scanf("%s", elem2.time);
+						if (elem1.qs > 1) {
+							fprintf(book, "%s;%s;%s;%d;%d\n", elem1.num, elem1.ath, elem1.name, elem1.q, elem1.qs - 1);
+							fprintf(studbook, "%s;%s;%s\n", elem1.num, elem.booknum, elem2.time);
+						}
+						else {
+							printf("Недостаточно книг\n");
+							printf("Книга будет сдана: %s", elem2.time);
+						}
+						fclose(book);
+					}
+					else
+						printf("\nНет таких ISBN или зачетки!\n ");
+				}
+			}
+			if (add == 6) {
+				int i=0;
+				stdents = fopen("students.csv", "r+");
+					rewind(stdents);
+					char file[5000];
+					while (fgets(file, 5000, stdents))
+					{
+						fscanf(stdents, "%[^;];%[^;];%[^;];%[^;];%[^;];[^;];%[^\n]", students[i].booknum, students[i].surname, students[i].name, students[i].patr, students[i].fac, students[i].depart);
+						i++;
+					}
+				while (!feof(stdents)) {
+					if (fgetc(stdents) == '\n')
+						i++;
+				}
+				i++;
+				struct tm* time1;
+				time_t timer=time(NULL);
+				time1 = localtime(&timer);
+				char strtime[250] = { 0 };
+				strftime(strtime, 250, "students_%d.%m.%Y_%H.%M.%S.csv", time1);
+				stdents = fopen(strtime, "w");
+				for (int j = 0; j < (i - 1); j++) {
+					fprintf(stdents, "%s;%s;%s;%s;%s;%s\n", students[j].booknum, students[j].surname, students[j].name, students[j].patr, students[j].fac, students[j].depart);
+				}
+				printf("Сохранено!");
+				fclose(stdents);
+			}
+			if (add == 7) {
+				FILE* stdents2 = fopen("students.csv", "w");
+				printf("Введите название файла для восстановления:");
+				char filename[40];
+				scanf("%s", filename);
+				stdents = fopen(filename, "r");
+				int temp = 0;
+				while ((temp = fgetc(stdents)) != EOF) {
+					fputc(temp, stdents2);
+				}
+				printf("Данные восстановлены!");
+			}
+			if (add == 0) {
+				exit(0);
+			}
 		}
-}
-	if (add == 6) {
-		int *line = 0;
-		back(line, students);
-	}
-	if (add == 0) {
-		exit(0);
-	}
-	}
+	
+
 
 int main()
 {
@@ -613,67 +731,83 @@ int main()
 		}
 	}
 }
-void delbook(const char* file)
+void delstudent(const char* filename)
 {
-	FILE* book;
-	char dnum[20];
-	printf("Введите ISBN:");
-	fflush(stdin);
-	scanf("%s", dnum);
-
-	book = fopen(file, "r");
-	rewind(book);
-	int getfile = similar(dnum);
-	int getfile1 = readb(file);
-	fclose(book);
-	if (getfile != -1)
-	{
-		book = fopen("books.csv", "w");
-		int i;
-		for (i = 0; i < getfile1; i++)
-		{
-			if (i != getfile)
-				fprintf(book, "%s;%s;%s;%d;%d\n", books[i].num, books[i].ath, books[i].name, books[i].q, books[i].qs);
-		}
-		fclose(book);
-		printf("\nКнига удалена!\n");
-	}
-	else
-		printf("\nНет такого ISBN\n");
-}
-void delstudents(const char* file) {
-	FILE* studentsf;
 	char dbooknum[15];
-	printf("\nВведите номер зачетки:");
+	int i = 0;
+	char file[5000];
+	FILE* stdents;
+	printf("Введите номер зачетки:");
 	fflush(stdin);
 	scanf("%s", dbooknum);
-studentsf = fopen(file, "r");
-	rewind(studentsf);
-	int getfile = similar2(dbooknum);
-	int getfile1 = readb1(file);
-	fclose(studentsf);
-	if (getfile == 0)
-	{
-		studentsf = fopen("students.csv", "w");
-		int i;
-		for (i = 0; i < getfile1; i++)
+	stdents = fopen(filename, "r+");
+		rewind(stdents);
+		while (fgets(file, 5000, stdents))
 		{
-			if (i != getfile)
-				fprintf(studentsf, "%s;%s;%s;%s;%s;%s\n", students[i].booknum,students[i].surname,students[i].name,students[i].patr,students[i].fac,students[i].depart);
+			fscanf(stdents, "%[^;];%[^;];%[^;];%[^;];%[^;];%[^;]\n", students[i].booknum, students[i].surname, students[i].name, students[i].patr, students[i].fac, students[i].depart);
+			++i;
 		}
-		fclose(studentsf);
-		printf("\nСтудент удален!\n");
+	int k = -1;
+	int j = 0;
+	for (j; j < i; j++)
+	{
+		if (strcmp(dbooknum, students[j].booknum) == 0)
+			k = j;
 	}
-	else
-		printf("\nНет такой зачетки\n");
+	fclose(stdents);
+	if (k == -1)
+	{
+		printf("Нет такого студента!\n");
+	}
+	else {
+		 stdents= fopen(filename, "w");
+		rewind(stdents);
+		for (j = 0; j < i - 1; ++j) {
+			if (j != k) {
+				fprintf(stdents, "%s;%s;%s;%s;%s;%s\n", students[j].booknum,students[j].surname,students[j].name,students[j].patr,students[j].fac,students[j].depart);
+			}
+		}
+		fclose(stdents);
+		printf("Студент удален!\n");
+	}
 }
-int similar1(char num[20])
-{
-	int i,j;
-	int temp = -1;
-	for (i = 0; i < readb("student_books.csv"); i++)
-		if (strcmp(num, books[i].num) == 0)
-			temp = i;
-	temp= i;
-	return temp;
+void delbook1(const char* filename) {
+
+	char dnum[15];
+	int i = 0;
+	char file[5000];
+	FILE* book;
+	printf("Введите номер ISBN:");
+	fflush(stdin);
+	scanf("%s", &dnum);
+	book = fopen(filename, "r+");
+	rewind(book);
+	while (fgets(file, 5000, book))
+	{
+		fscanf(book, "%[^;];%[^;];%[^;];%d;%d\n", books[i].num, books[i].ath, books[i].name, &books[i].q, &books[i].qs);
+		++i;
+	}
+	int k = -1;
+	int j = 0;
+	for (j; j < i; j++)
+	{
+		if (strcmp(dnum, books[j].num) == 0)
+			k = j;
+	}
+	fclose(book);
+	if (k != 0)
+	{
+		printf("Нет такого ISBN!\n");
+	}
+	else {
+		book = fopen(filename, "w");
+		rewind(book);
+		for (j = 0; j < i - 1; ++j) {
+			if (j != k) {
+				fprintf(book, "%s;%s;%s;%d;%d\n", books[j].num, books[j].ath, books[j].name, books[j].q, books[j].qs);
+			}
+		}
+		fclose(book);
+		printf("Книга удалена!\n");
+	}
 }
